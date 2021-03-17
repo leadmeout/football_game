@@ -5,7 +5,9 @@ import pandas as pd
 import random
 import sys
 import time
+from pymongo import MongoClient
 from typing import Callable, Dict, List
+
 
 
 """
@@ -21,6 +23,39 @@ TO DO:
 DONE:
 1. every team plays every team twice (maybe based on df index??)
 """
+
+
+def write_to_database(*args):
+
+    client = MongoClient('localhost', 27017)
+    db = client['fbg']
+    collection_teams = db['teams']
+    collection_match_days = db['match_days']
+    collection_match_day_results = db['match_day_results']
+
+    if teams:
+        try:
+            document = collection_teams.find_one()
+            collection_teams.replace_one(document, teams, True)
+        except TypeError as e:
+            print("Teams: There was an error: ", e)
+            collection_teams.insert_one(teams)
+
+    if match_days:
+        try:
+            document = collection_match_days.find_one()
+            collection_match_days.replace_one(document, match_days, True)
+        except TypeError as e:
+            print("Match Days: There was an error: ", e)
+            collection_match_days.insert_one(match_days)
+
+    if match_day_results:
+        try:
+            document = collection_match_day_results.find_one()
+            collection_match_day_results.replace_one(document, match_day_results, True)
+        except TypeError as e:
+            print("MDR: There was an error: ", e)
+            collection_match_day_results.insert_one(match_day_results)
 
 
 def save_file(*args):
@@ -354,8 +389,11 @@ def match_day_generator(teams: Dict):
 def _check_season_over_condition():
     count = 0
     for day in match_days:
-        if len(match_days[day]) > 0:
-            count += 1
+        try:
+            if len(match_days[day]) > 0:
+                count += 1
+        except TypeError:
+            count += 0
 
     if count == 0:
         new_game = input("Start a new season with new teams?\n")
@@ -401,8 +439,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match(get_next_match)
-        simulate_season()
-        # simulate_match_day()
+        # simulate_season()yy
+        simulate_match_day()
     except IndexError:
         print(" ")
         print("*" * 10)
@@ -415,5 +453,6 @@ if __name__ == "__main__":
     print(league_table)
 
     save_file(teams, match_days)
+    write_to_database(teams, match_days, match_day_results)
 
     _check_season_over_condition()
