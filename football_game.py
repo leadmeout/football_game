@@ -9,7 +9,6 @@ from pymongo import MongoClient
 from typing import Callable, Dict, List
 
 
-
 """
 TO DO:
 
@@ -52,7 +51,8 @@ def write_to_database(*args):
     if match_day_results:
         try:
             document = collection_match_day_results.find_one()
-            collection_match_day_results.replace_one(document, match_day_results, True)
+            collection_match_day_results.replace_one(
+                document, match_day_results, True)
         except TypeError as e:
             print("MDR: There was an error: ", e)
             collection_match_day_results.insert_one(match_day_results)
@@ -100,7 +100,7 @@ def generate_teams():
 
     teams = {}
 
-    for count in range(1, 8):
+    for count in range(1, 9):
 
         team = random.choice(cities)
         name = random.choice(nouns)
@@ -147,7 +147,7 @@ def _check_if_bye_week(sorted_match_days, match):
     """
 
     if 0 in match:
-        print("This is a bye week for ", match[0], match[1])
+        # print("This is a bye week for ", match[0], match[1])
         match_days[sorted_match_days[0]].pop(0)
         return match_days[sorted_match_days[0]][0]
     else:
@@ -210,7 +210,7 @@ def simulate_game(match_list):
 
     for match in match_list:
         home_team, away_team = match
-        print(f"Game {i}: {home_team} vs. {away_team}")
+        # print(f"Game {i}: {home_team} vs. {away_team}")
         i += 1
 
 
@@ -222,17 +222,17 @@ def get_next_match():
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
 
     match = match_days[sorted_match_days[0]][0]
-    print(" ")
-    print("*" * 20)
+    # print(" ")
+    # print("*" * 20)
     match = _check_if_bye_week(sorted_match_days, match)
 
-    print("get_next_match: returning: ", match)
+    # print("get_next_match: returning: ", match)
 
     return match, sorted_match_days
 
 
 def _remove_match_(sorted_match_days):
-    print("_remove_match_: Deleting ", match_days[sorted_match_days[0]][0])
+    # print("_remove_match_: Deleting ", match_days[sorted_match_days[0]][0])
     del match_days[sorted_match_days[0]][0]
 
 
@@ -241,7 +241,7 @@ def simulate_match(get_next_match: Callable) -> None:
 
     match, sorted_match_days = get_next_match()
 
-    print("simulate_match: ", match)
+    # print("simulate_match: ", match)
 
     home_team = match[0]
     away_team = match[1]
@@ -251,9 +251,9 @@ def simulate_match(get_next_match: Callable) -> None:
 
     result = [[(home_team, home_score), (away_team, away_score)]]
 
-    print(f"simulate_match: Home team: {home_team}\nAway team: {away_team}")
-    print(
-        f"simulate_match: {home_team} {home_score} vs. {away_score} {away_team}")
+    # print(f"simulate_match: Home team: {home_team}\nAway team: {away_team}")
+    # print(
+    #    f"simulate_match: {home_team} {home_score} vs. {away_score} {away_team}")
 
     if home_score > away_score:
         teams[home_team]['wins'] += 1
@@ -274,6 +274,10 @@ def simulate_match(get_next_match: Callable) -> None:
     teams[away_team]['goals_for'] += away_score
     teams[away_team]['goals_against'] += home_score
 
+    # print("Match_day_result: ", match_day_results)
+
+    print(sorted_match_days[0])
+
     match_day_results[sorted_match_days[0]] += result
 
     _remove_match_(sorted_match_days)
@@ -281,7 +285,7 @@ def simulate_match(get_next_match: Callable) -> None:
 
 def simulate_match_day():
 
-    print("_simulate_match_day: Top of func")
+    # print("_simulate_match_day: Top of func")
 
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
@@ -291,12 +295,12 @@ def simulate_match_day():
 
     match_day = match_days[sorted_match_days[0]]
 
-    for match in range(len(match_day)):
+    for _ in range(len(match_day)):
         simulate_match(get_next_match)
 
 
 def simulate_season():
-    print("_simulate_season: Top of func")
+    # print("_simulate_season: Top of func")
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
 
@@ -305,7 +309,7 @@ def simulate_season():
 
     match_day = match_days[sorted_match_days[0]]
 
-    print("Length of match days dict: ", len(match_days))
+    # print("Length of match days dict: ", len(match_days))
 
     for day in range(len(match_days)):
         simulate_match_day()
@@ -336,7 +340,16 @@ def match_day_teams(match_day) -> List[str]:
 
 
 def match_day_results_generator(teams: Dict):
+    """
+    Generate and return an empty dictionary with the match day numbers as the keys.
+
+    This dictionary will store the results of each match.
+    """
     team_list = [team for team in teams]
+
+    if len(team_list) % 2:
+        team_list.append(0)
+
     match_day_number = 2 * len(team_list) - 2
     match_day_results = {k: [] for k in range(1, match_day_number + 1)}
 
@@ -437,16 +450,9 @@ if __name__ == "__main__":
 
     teams, match_days, match_day_results = setup_game()
 
-    try:
-        # simulate_match(get_next_match)
-        # simulate_season()yy
-        simulate_match_day()
-    except IndexError:
-        print(" ")
-        print("*" * 10)
-        print("There are no matches left to play!")
-        print("*" * 10)
-        print(" ")
+    # simulate_match(get_next_match)
+    # simulate_season()
+    simulate_match_day()
 
     point_calculator(teams)
     league_table = generate_table(teams)
