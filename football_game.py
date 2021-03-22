@@ -144,10 +144,13 @@ def _check_if_bye_week(sorted_match_days, match):
     """
     If a team if paired with a 0, it means that team has a bye week and no games on this match day.
     This function will remove that match and return the next game in the list as match
+
+    If the match containing a 0 is the last in the list, the function will return None as the list is empty.
     """
 
+    print(match)
+
     if 0 in match:
-        # print("This is a bye week for ", match[0], match[1])
         match_days[sorted_match_days[0]].pop(0)
         return match_days[sorted_match_days[0]][0]
     else:
@@ -217,22 +220,13 @@ def simulate_game(match_list):
 def get_next_match():
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
-
     sorted_match_days = sorted(
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
-
     match = match_days[sorted_match_days[0]][0]
-    # print(" ")
-    # print("*" * 20)
-    match = _check_if_bye_week(sorted_match_days, match)
-
-    # print("get_next_match: returning: ", match)
-
     return match, sorted_match_days
 
 
 def _remove_match_(sorted_match_days):
-    # print("_remove_match_: Deleting ", match_days[sorted_match_days[0]][0])
     del match_days[sorted_match_days[0]][0]
 
 
@@ -241,8 +235,6 @@ def simulate_match(get_next_match: Callable) -> None:
 
     match, sorted_match_days = get_next_match()
 
-    # print("simulate_match: ", match)
-
     home_team = match[0]
     away_team = match[1]
 
@@ -250,10 +242,6 @@ def simulate_match(get_next_match: Callable) -> None:
     away_score = random.randint(0, 8)
 
     result = [[(home_team, home_score), (away_team, away_score)]]
-
-    # print(f"simulate_match: Home team: {home_team}\nAway team: {away_team}")
-    # print(
-    #    f"simulate_match: {home_team} {home_score} vs. {away_score} {away_team}")
 
     if home_score > away_score:
         teams[home_team]['wins'] += 1
@@ -274,10 +262,6 @@ def simulate_match(get_next_match: Callable) -> None:
     teams[away_team]['goals_for'] += away_score
     teams[away_team]['goals_against'] += home_score
 
-    # print("Match_day_result: ", match_day_results)
-
-    print(sorted_match_days[0])
-
     match_day_results[sorted_match_days[0]] += result
 
     _remove_match_(sorted_match_days)
@@ -294,6 +278,10 @@ def simulate_match_day():
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
 
     match_day = match_days[sorted_match_days[0]]
+
+    for match in match_day:
+        if 0 in match:
+            match_day.remove(match)
 
     for _ in range(len(match_day)):
         simulate_match(get_next_match)
@@ -450,9 +438,13 @@ if __name__ == "__main__":
 
     teams, match_days, match_day_results = setup_game()
 
-    # simulate_match(get_next_match)
-    # simulate_season()
-    simulate_match_day()
+    try:
+        # simulate_match(get_next_match)
+        # simulate_season()
+        simulate_match_day()
+    except IndexError:
+        print(league_table)
+        _check_season_over_condition()
 
     point_calculator(teams)
     league_table = generate_table(teams)
