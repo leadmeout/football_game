@@ -440,9 +440,10 @@ if __name__ == "__main__":
 
     try:
         # simulate_match(get_next_match)
-        # simulate_season()
-        simulate_match_day()
+        simulate_season()
+        # simulate_match_day()
     except IndexError:
+        league_table = generate_table(teams)
         print(league_table)
         _check_season_over_condition()
 
