@@ -7,6 +7,7 @@ import sys
 import time
 from pymongo import MongoClient
 from typing import Callable, Dict, List
+import uuid
 
 
 """
@@ -35,34 +36,39 @@ def connect_to_db():
     return collection_teams, collection_match_days, collection_match_day_results
 
 
-def write_to_database(*args):
+def write_teams_to_database(teams):
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    if teams:
-        try:
-            document = collection_teams.find_one()
-            collection_teams.replace_one(document, teams, True)
-        except TypeError as e:
-            print("Teams: There was an error: ", e)
-            collection_teams.insert_one(teams)
+    try:
+        document = {}
+        collection_teams.replace_one(document, teams, True)
+    except TypeError as e:
+        print("Teams: There was an error: ", e)
+        collection_teams.insert_one(teams)
 
-    if match_days:
-        try:
-            document = collection_match_days.find_one()
-            collection_match_days.replace_one(document, match_days, True)
-        except TypeError as e:
-            print("Match Days: There was an error: ", e)
-            collection_match_days.insert_one(match_days)
 
-    if match_day_results:
-        try:
-            document = collection_match_day_results.find_one()
-            collection_match_day_results.replace_one(
-                document, match_day_results, True)
-        except TypeError as e:
-            print("MDR: There was an error: ", e)
-            collection_match_day_results.insert_one(match_day_results)
+def write_match_days_to_database(match_days):
+
+    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
+
+    try:
+        document = {}
+        collection_match_days.replace_one(document, match_days, True)
+    except TypeError as e:
+        print("Match Days: There was an error: ", e)
+        collection_match_days.insert_one(match_days)
+
+
+def write_match_day_results_to_database(match_day_results):
+
+    try:
+        document = {}
+        collection_match_day_results.replace_one(
+            document, match_day_results, True)
+    except TypeError as e:
+        print("MDR: There was an error: ", e)
+        collection_match_day_results.insert_one(match_day_results)
 
 
 def save_file(*args):
@@ -143,6 +149,8 @@ def generate_teams():
 
     with open('./data/teams.json', 'w') as f:
         json.dump(teams, f)
+
+    write_teams_to_database(teams)
 
     return teams
 
@@ -456,6 +464,8 @@ if __name__ == "__main__":
     print(league_table)
 
     save_file(teams, match_days)
-    write_to_database(teams, match_days, match_day_results)
+    write_teams_to_database(teams)
+    write_match_days_to_database(match_days)
+    write_match_day_results_to_database(match_day_results)
 
     _check_season_over_condition()
