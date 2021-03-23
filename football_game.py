@@ -19,12 +19,11 @@ TO DO:
 
 5. add squad
 
-
-DONE:
-1. every team plays every team twice (maybe based on df index??)
 """
 
+# Define a DB class
 
+# START DB STUFF
 def connect_to_db():
 
     client = MongoClient('localhost', 27017)
@@ -69,6 +68,8 @@ def write_match_day_results_to_database(match_day_results):
     except TypeError as e:
         print("MDR: There was an error: ", e)
         collection_match_day_results.insert_one(match_day_results)
+# END DB STUFF
+
 
 
 def save_file(*args):
@@ -415,6 +416,7 @@ def _check_season_over_condition():
             print("Game files have been deleted.")
             sys.exit()
         else:
+            print("Exiting game.")
             sys.exit()
 
 
