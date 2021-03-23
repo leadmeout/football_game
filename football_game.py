@@ -207,16 +207,6 @@ def random_game(teams):
     return teams
 
 
-def simulate_game(match_list):
-
-    i = 1
-
-    for match in match_list:
-        home_team, away_team = match
-        # print(f"Game {i}: {home_team} vs. {away_team}")
-        i += 1
-
-
 def get_next_match():
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
