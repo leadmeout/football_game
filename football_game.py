@@ -24,13 +24,20 @@ DONE:
 """
 
 
-def write_to_database(*args):
+def connect_to_db():
 
     client = MongoClient('localhost', 27017)
     db = client['fbg']
     collection_teams = db['teams']
     collection_match_days = db['match_days']
     collection_match_day_results = db['match_day_results']
+
+    return collection_teams, collection_match_days, collection_match_day_results
+
+
+def write_to_database(*args):
+
+    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     if teams:
         try:
