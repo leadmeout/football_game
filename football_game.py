@@ -399,6 +399,11 @@ def _check_season_over_condition():
         if new_game == "y":
             for file in game_files:
                 os.remove(file)
+
+            collection_teams.delete_one({})
+            collection_match_days.delete_one({})
+            collection_match_day_results.delete_one({})
+
             print("Game files have been deleted.")
             sys.exit()
         else:
@@ -429,6 +434,8 @@ def setup_game():
 
 
 if __name__ == "__main__":
+
+    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     game_files = ["./data/teams.json", "./data/match_days.json",
                   './data/match_day_results.json']
