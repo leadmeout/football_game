@@ -42,35 +42,25 @@ def write_teams_to_database(teams):
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    try:
-        document = {}
-        collection_teams.replace_one(document, teams, True)
-    except TypeError as e:
-        print("Teams: There was an error: ", e)
-        collection_teams.insert_one(teams)
+    document = {}
+    collection_teams.replace_one(document, teams, True)
 
 
 def write_match_days_to_database(match_days):
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    try:
-        document = {}
-        collection_match_days.replace_one(document, match_days, True)
-    except TypeError as e:
-        print("Match Days: There was an error: ", e)
-        collection_match_days.insert_one(match_days)
+    document = {}
+    collection_match_days.replace_one(document, match_days, True)
 
 
 def write_match_day_results_to_database(match_day_results):
 
-    try:
-        document = {}
-        collection_match_day_results.replace_one(
-            document, match_day_results, True)
-    except TypeError as e:
-        print("MDR: There was an error: ", e)
-        collection_match_day_results.insert_one(match_day_results)
+    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
+
+    document = {}
+    collection_match_day_results.replace_one()
+
 # END OF DB STUFF
 
 
@@ -461,8 +451,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match(get_next_match)
-        # simulate_season()
-        simulate_match_day()
+        simulate_season()
+        # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams)
         print(league_table)
