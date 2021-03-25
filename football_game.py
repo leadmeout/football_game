@@ -9,6 +9,8 @@ from pymongo import MongoClient
 from typing import Callable, Dict, List
 import uuid
 
+from database import Database
+
 
 """
 TO DO:
@@ -22,6 +24,7 @@ TO DO:
 """
 
 # Define a DB class
+
 
 # START DB STUFF
 def connect_to_db():
@@ -68,7 +71,7 @@ def write_match_day_results_to_database(match_day_results):
     except TypeError as e:
         print("MDR: There was an error: ", e)
         collection_match_day_results.insert_one(match_day_results)
-# END DB STUFF
+# END OF DB STUFF
 
 
 
@@ -445,6 +448,8 @@ def setup_game():
 
 if __name__ == "__main__":
 
+
+
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     game_files = ["./data/teams.json", "./data/match_days.json",
@@ -454,8 +459,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match(get_next_match)
-        simulate_season()
-        # simulate_match_day()
+        # simulate_season()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams)
         print(league_table)
