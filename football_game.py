@@ -448,7 +448,9 @@ def setup_game():
 
 if __name__ == "__main__":
 
+    d = Database()
 
+    d.print_function()
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
