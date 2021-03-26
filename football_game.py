@@ -163,8 +163,6 @@ def _check_if_bye_week(sorted_match_days, match):
     If the match containing a 0 is the last in the list, the function will return None as the list is empty.
     """
 
-    print(match)
-
     if 0 in match:
         match_days[sorted_match_days[0]].pop(0)
         return match_days[sorted_match_days[0]][0]
@@ -274,8 +272,6 @@ def simulate_match(get_next_match: Callable) -> None:
 
 def simulate_match_day():
 
-    # print("_simulate_match_day: Top of func")
-
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
 
@@ -293,7 +289,7 @@ def simulate_match_day():
 
 
 def simulate_season():
-    # print("_simulate_season: Top of func")
+
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
 
@@ -301,8 +297,6 @@ def simulate_season():
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
 
     match_day = match_days[sorted_match_days[0]]
-
-    # print("Length of match days dict: ", len(match_days))
 
     for day in range(len(match_days)):
         simulate_match_day()
@@ -386,9 +380,6 @@ def match_day_generator(teams: Dict):
         match_days[fixture[0]] = fixture[1]
         count += 1
 
-    # for k, v in match_days.items():
-    #     print("Match day {}: {}".format(k, v))
-
     return match_days
 
 
@@ -445,8 +436,6 @@ def setup_game():
 if __name__ == "__main__":
 
     d = Database()
-
-    d.print_function()
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
