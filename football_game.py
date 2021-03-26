@@ -50,16 +50,22 @@ def write_match_days_to_database(match_days):
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
+    with open("./data/match_days.json") as f:
+        data = json.load(f)
+
     document = {}
-    collection_match_days.replace_one(document, match_days, True)
+    collection_match_days.replace_one(document, data, True)
 
 
 def write_match_day_results_to_database(match_day_results):
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
+    with open("./data/match_day_results.json") as f:
+        data = json.load(f)
+
     document = {}
-    collection_match_day_results.replace_one()
+    collection_match_day_results.replace_one(document, data, True)
 
 # END OF DB STUFF
 
