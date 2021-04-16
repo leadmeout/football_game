@@ -5,11 +5,11 @@ import pandas as pd
 import random
 import sys
 import time
-from pymongo import MongoClient
+
 from typing import Callable, Dict, List
 import uuid
 
-from database import Database
+from database import MongoDB
 
 """
 TO DO:
@@ -23,48 +23,7 @@ TO DO:
 """
 
 
-# Define a DB class
 
-
-# START DB STUFF
-def connect_to_db():
-    client = MongoClient('localhost', 27017)
-    db = client['fbg']
-    collection_teams = db['teams']
-    collection_match_days = db['match_days']
-    collection_match_day_results = db['match_day_results']
-
-    return collection_teams, collection_match_days, collection_match_day_results
-
-
-def write_teams_to_database(teams):
-    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
-
-    document = {}
-    collection_teams.replace_one(document, teams, True)
-
-
-def write_match_days_to_database(match_days):
-    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
-
-    with open("../data/match_days.json") as f:
-        data = json.load(f)
-
-    document = {}
-    collection_match_days.replace_one(document, data, True)
-
-
-def write_match_day_results_to_database(match_day_results):
-    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
-
-    with open("../data/match_day_results.json") as f:
-        data = json.load(f)
-
-    document = {}
-    collection_match_day_results.replace_one(document, data, True)
-
-
-# END OF DB STUFF
 
 
 def save_file(*args):
@@ -145,7 +104,7 @@ def generate_teams():
     with open('../data/teams.json', 'w') as f:
         json.dump(teams, f)
 
-    write_teams_to_database(teams)
+    mdb.write_teams_to_database(teams)
 
     return teams
 
@@ -427,12 +386,16 @@ def setup_game():
 
 if __name__ == "__main__":
 
-    d = Database()
+    db_address = 'localhost'
+    db_port_number = 27017
+    db_name = 'fbg'
+
+    mdb = MongoDB(db_address, db_port_number, db_name)
 
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    game_files = ["./data/teams.json", "./data/match_days.json",
-                  './data/match_day_results.json']
+    # game_files = ["./data/teams.json", "./data/match_days.json",
+    #               './data/match_day_results.json']
 
     teams, match_days, match_day_results = setup_game()
 
@@ -449,9 +412,9 @@ if __name__ == "__main__":
     league_table = generate_table(teams)
     print(league_table)
 
-    save_file(teams, match_days)
-    write_teams_to_database(teams)
-    write_match_days_to_database(match_days)
-    write_match_day_results_to_database(match_day_results)
+    # save_file(teams, match_days)
+    mdb.write_teams_to_database(teams)
+    mdb.write_match_days_to_database(match_days)
+    mdb.write_match_day_results_to_database(match_day_results)
 
     _check_season_over_condition()
