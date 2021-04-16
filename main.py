@@ -8,8 +8,7 @@ import time
 
 from typing import Callable, Dict, List
 import uuid
-
-from database import MongoDB
+from models.database import MongoDB
 
 """
 TO DO:
@@ -21,28 +20,6 @@ TO DO:
 5. add squad
 
 """
-
-
-
-
-
-def save_file(*args):
-    """
-    Save dictionary to teams.json
-    """
-
-    if teams:
-        with open('../data/teams.json', 'w') as f:
-            json.dump(teams, f)
-
-    if match_days:
-        with open('../data/match_days.json', 'w') as f:
-            json.dump(match_days, f)
-
-    if match_day_results:
-        with open('../data/match_day_results.json', 'w') as f:
-            json.dump(match_day_results, f)
-
 
 def generate_teams():
     """
@@ -100,11 +77,6 @@ def generate_teams():
         'goals_against': 0,
         'goal_difference': 0,
     }
-
-    with open('../data/teams.json', 'w') as f:
-        json.dump(teams, f)
-
-    mdb.write_teams_to_database(teams)
 
     return teams
 
@@ -363,25 +335,26 @@ def _check_season_over_condition():
 
 
 def setup_game():
-    if not os.path.isfile("../data/teams.json"):
-        teams = generate_teams()
-    else:
-        load_teams = open('../data/teams.json')
-        teams = json.load(load_teams)
+    required = {'teams': generate_teams,
+                'match_days': match_day_generator,
+                'match_day_results': match_day_results_generator,
+                }
 
-    if not os.path.isfile("../data/match_days.json"):
-        match_days = match_day_generator(teams)
-    else:
-        load_match_days = open('../data/match_days.json')
-        match_days = json.load(load_match_days)
+    current_collections = mdb.db.list_collection_names()
 
-    if not os.path.isfile("../data/match_day_results.json"):
-        match_day_results = match_day_results_generator(teams)
-    else:
-        load_match_days = open('../data/match_day_results.json')
-        match_day_results = json.load(load_match_days)
+    for collection in required.keys():
+        if collection not in current_collections:
+            if collection == 'teams':
+                required[collection]()
+            else:
+                print(f"Creating collection {collection}.")
+                required[collection](teams)
+        elif mdb.db[collection].estimated_count == 0:
+            print(f"Collection {collection} exists and count is 0")
+        else:
+            print(f"{collection} exists.")
 
-    return teams, match_days, match_day_results
+    return mdb.db['teams'], mdb.db['match_days'], mdb.db['match_day_results']
 
 
 if __name__ == "__main__":
@@ -391,11 +364,7 @@ if __name__ == "__main__":
     db_name = 'fbg'
 
     mdb = MongoDB(db_address, db_port_number, db_name)
-
-    collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
-
-    # game_files = ["./data/teams.json", "./data/match_days.json",
-    #               './data/match_day_results.json']
+    print(mdb.db.list_collection_names())
 
     teams, match_days, match_day_results = setup_game()
 
