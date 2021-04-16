@@ -11,7 +11,6 @@ import uuid
 
 from database import Database
 
-
 """
 TO DO:
 
@@ -23,12 +22,12 @@ TO DO:
 
 """
 
+
 # Define a DB class
 
 
 # START DB STUFF
 def connect_to_db():
-
     client = MongoClient('localhost', 27017)
     db = client['fbg']
     collection_teams = db['teams']
@@ -39,7 +38,6 @@ def connect_to_db():
 
 
 def write_teams_to_database(teams):
-
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     document = {}
@@ -47,7 +45,6 @@ def write_teams_to_database(teams):
 
 
 def write_match_days_to_database(match_days):
-
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     with open("./data/match_days.json") as f:
@@ -58,7 +55,6 @@ def write_match_days_to_database(match_days):
 
 
 def write_match_day_results_to_database(match_day_results):
-
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
     with open("./data/match_day_results.json") as f:
@@ -67,8 +63,8 @@ def write_match_day_results_to_database(match_day_results):
     document = {}
     collection_match_day_results.replace_one(document, data, True)
 
-# END OF DB STUFF
 
+# END OF DB STUFF
 
 
 def save_file(*args):
@@ -114,7 +110,6 @@ def generate_teams():
     teams = {}
 
     for count in range(1, 9):
-
         team = random.choice(cities)
         name = random.choice(nouns)
 
@@ -190,14 +185,13 @@ def generate_table(teams: dict):
     df = pd.DataFrame(league_table,
                       columns=['Team', 'Points', 'GP', 'Wins',
                                'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[
-                          i for i in range(1, len(teams) + 1)])
+            i for i in range(1, len(teams) + 1)])
     df.sort_values(by=['Points'], inplace=True, ascending=False)
 
     return df
 
 
 def random_game(teams):
-
     home_score = random.randint(0, 8)
     away_score = random.randint(0, 8)
 
@@ -234,44 +228,48 @@ def _remove_match_(sorted_match_days):
 
 
 def simulate_match(get_next_match: Callable) -> None:
-    "Simulates the next match in the schedule"
+    """Simulates the next match in the schedule. Skips matches which are bye games,
+        indicated by a 0 in the match day."""
 
     match, sorted_match_days = get_next_match()
 
-    home_team = match[0]
-    away_team = match[1]
+    print(match)
 
-    home_score = random.randint(0, 8)
-    away_score = random.randint(0, 8)
+    if 0 not in match:
 
-    result = [[(home_team, home_score), (away_team, away_score)]]
+        home_team = match[0]
+        away_team = match[1]
 
-    if home_score > away_score:
-        teams[home_team]['wins'] += 1
-        teams[away_team]['losses'] += 1
-    elif home_score < away_score:
-        teams[home_team]['losses'] += 1
-        teams[away_team]['wins'] += 1
-    else:
-        teams[home_team]['draws'] += 1
-        teams[away_team]['draws'] += 1
+        home_score = random.randint(0, 8)
+        away_score = random.randint(0, 8)
 
-    teams[home_team]['played'] += 1
-    teams[away_team]['played'] += 1
+        result = [[(home_team, home_score), (away_team, away_score)]]
 
-    teams[home_team]['goals_for'] += home_score
-    teams[home_team]['goals_against'] += away_score
+        if home_score > away_score:
+            teams[home_team]['wins'] += 1
+            teams[away_team]['losses'] += 1
+        elif home_score < away_score:
+            teams[home_team]['losses'] += 1
+            teams[away_team]['wins'] += 1
+        else:
+            teams[home_team]['draws'] += 1
+            teams[away_team]['draws'] += 1
 
-    teams[away_team]['goals_for'] += away_score
-    teams[away_team]['goals_against'] += home_score
+        teams[home_team]['played'] += 1
+        teams[away_team]['played'] += 1
 
-    match_day_results[sorted_match_days[0]] += result
+        teams[home_team]['goals_for'] += home_score
+        teams[home_team]['goals_against'] += away_score
+
+        teams[away_team]['goals_for'] += away_score
+        teams[away_team]['goals_against'] += home_score
+
+        match_day_results[sorted_match_days[0]] += result
 
     _remove_match_(sorted_match_days)
 
 
 def simulate_match_day():
-
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
 
@@ -289,7 +287,6 @@ def simulate_match_day():
 
 
 def simulate_season():
-
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
 
@@ -308,18 +305,16 @@ def point_calculator(teams) -> None:
     """
     for team in teams:
         teams[team]['points'] = (
-            teams[team]['wins'] * 3) + teams[team]['draws']
+                                        teams[team]['wins'] * 3) + teams[team]['draws']
 
         teams[team]['goal_difference'] = teams[team]['goals_for'] - \
-            teams[team]['goals_against']
+                                         teams[team]['goals_against']
 
 
 def match_day_teams(match_day) -> List[str]:
-
     match_day_list = []
 
     for elem in match_day:
-
         match_day_list.append(list(elem)[0])
         match_day_list.append(list(elem)[1])
 
@@ -411,7 +406,6 @@ def _check_season_over_condition():
 
 
 def setup_game():
-
     if not os.path.isfile("./data/teams.json"):
         teams = generate_teams()
     else:
@@ -445,8 +439,8 @@ if __name__ == "__main__":
     teams, match_days, match_day_results = setup_game()
 
     try:
-        # simulate_match(get_next_match)
-        simulate_season()
+        simulate_match(get_next_match)
+        # simulate_season()
         # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams)
