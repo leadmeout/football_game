@@ -233,8 +233,6 @@ def simulate_match(get_next_match: Callable) -> None:
 
     match, sorted_match_days = get_next_match()
 
-    print(match)
-
     if 0 not in match:
 
         home_team = match[0]
