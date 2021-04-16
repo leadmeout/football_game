@@ -47,7 +47,7 @@ def write_teams_to_database(teams):
 def write_match_days_to_database(match_days):
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    with open("./data/match_days.json") as f:
+    with open("../data/match_days.json") as f:
         data = json.load(f)
 
     document = {}
@@ -57,7 +57,7 @@ def write_match_days_to_database(match_days):
 def write_match_day_results_to_database(match_day_results):
     collection_teams, collection_match_days, collection_match_day_results = connect_to_db()
 
-    with open("./data/match_day_results.json") as f:
+    with open("../data/match_day_results.json") as f:
         data = json.load(f)
 
     document = {}
@@ -73,15 +73,15 @@ def save_file(*args):
     """
 
     if teams:
-        with open('./data/teams.json', 'w') as f:
+        with open('../data/teams.json', 'w') as f:
             json.dump(teams, f)
 
     if match_days:
-        with open('./data/match_days.json', 'w') as f:
+        with open('../data/match_days.json', 'w') as f:
             json.dump(match_days, f)
 
     if match_day_results:
-        with open('./data/match_day_results.json', 'w') as f:
+        with open('../data/match_day_results.json', 'w') as f:
             json.dump(match_day_results, f)
 
 
@@ -142,7 +142,7 @@ def generate_teams():
         'goal_difference': 0,
     }
 
-    with open('./data/teams.json', 'w') as f:
+    with open('../data/teams.json', 'w') as f:
         json.dump(teams, f)
 
     write_teams_to_database(teams)
@@ -404,22 +404,22 @@ def _check_season_over_condition():
 
 
 def setup_game():
-    if not os.path.isfile("./data/teams.json"):
+    if not os.path.isfile("../data/teams.json"):
         teams = generate_teams()
     else:
-        load_teams = open('./data/teams.json')
+        load_teams = open('../data/teams.json')
         teams = json.load(load_teams)
 
-    if not os.path.isfile("./data/match_days.json"):
+    if not os.path.isfile("../data/match_days.json"):
         match_days = match_day_generator(teams)
     else:
-        load_match_days = open('./data/match_days.json')
+        load_match_days = open('../data/match_days.json')
         match_days = json.load(load_match_days)
 
-    if not os.path.isfile("./data/match_day_results.json"):
+    if not os.path.isfile("../data/match_day_results.json"):
         match_day_results = match_day_results_generator(teams)
     else:
-        load_match_days = open('./data/match_day_results.json')
+        load_match_days = open('../data/match_day_results.json')
         match_day_results = json.load(load_match_days)
 
     return teams, match_days, match_day_results
