@@ -21,6 +21,7 @@ TO DO:
 
 """
 
+
 def generate_teams():
     """
     Creates the teams for the league
@@ -146,7 +147,6 @@ def random_game(teams):
 
 
 def get_next_match():
-
     print()
     match_days_with_matches = {
         k: v for k, v in match_days.items() if len(v) > 0}
@@ -321,7 +321,10 @@ def match_day_generator(teams_collection):
         match_days[fixture[0]] = fixture[1]
         count += 1
 
-    return match_days
+    # new dict with str conversion for keys
+    str_match_days = dict([(str(k), v) for k, v in match_days.items()])
+
+    return str_match_days
 
 
 def _check_season_over_condition():
@@ -375,6 +378,12 @@ def setup_game():
             elif collection == 'match_days':
                 print(f"Creating collection {collection}.")
                 res = required[collection](teams)
+
+                print(f"TYPE: {type(res)}")
+                first_key = next(iter(res))
+                print(f"FIRST KEY: {first_key}")
+                print(f"FIRST KEY TYPE: {type(first_key)}")
+
                 mdb.write_match_days_to_database(res)
             elif collection == 'match_day_results':
                 print(f"Creating collection {collection}.")
