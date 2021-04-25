@@ -252,21 +252,31 @@ def match_day_teams(match_day) -> List[str]:
     return match_day_list
 
 
-def match_day_results_generator(teams: Dict):
+def match_day_results_generator(arg):
     """
     Generate and return an empty dictionary with the match day numbers as the keys.
 
     This dictionary will store the results of each match.
     """
-    team_list = [team for team in teams]
+
+    teams_dict = arg.find_one()
+    team_list = []
+
+    for team_name in teams_dict:
+        team_list.append(team_name)
+
+    # the first entry is the id, remove it from the list
+    team_list = team_list[1:]
 
     if len(team_list) % 2:
         team_list.append(0)
 
     match_day_number = 2 * len(team_list) - 2
-    match_day_results = {k: [] for k in range(1, match_day_number + 1)}
+    results_dict = {k: [] for k in range(1, match_day_number + 1)}
 
-    return match_day_results
+    str_results_dict = dict([(str(k), v) for k, v in results_dict.items()])
+
+    return str_results_dict
 
 
 def match_day_generator(arg):
@@ -350,7 +360,6 @@ def _check_season_over_condition():
 
 
 def setup_game():
-
     required = {'teams': generate_teams,
                 'match_days': match_day_generator,
                 'match_day_results': match_day_results_generator,
