@@ -276,7 +276,7 @@ def match_day_generator(arg):
     once as the home team and again as the away team
     """
 
-    # Get the teams document out of the database
+    # Get the teams document from the database
     teams_dict = arg.find_one()
     team_list = []
 
@@ -350,7 +350,7 @@ def _check_season_over_condition():
 
 
 def setup_game():
-    global teams_collection
+
     required = {'teams': generate_teams,
                 'match_days': match_day_generator,
                 'match_day_results': match_day_results_generator,
@@ -362,23 +362,25 @@ def setup_game():
 
     for collection in required.keys():
         print(collection)
-        if collection == 'teams':
-            if collection in current_collections:
-                teams_collection = mdb.db['teams']
 
         if collection not in current_collections:
             if collection == 'teams':
                 print("Creating teams")
                 teams_collection = required[collection]()
                 mdb.write_teams_to_database(teams_collection)
+
             elif collection == 'match_days':
+                teams_collection = mdb.db['teams']
                 print(f"Creating collection {collection}.")
                 res = required[collection](teams_collection)
                 mdb.write_match_days_to_database(res)
+
             elif collection == 'match_day_results':
+                teams_collection = mdb.db['teams']
                 print(f"Creating collection {collection}.")
                 res = required[collection](teams_collection)
                 mdb.write_match_day_results_to_database(res)
+
         elif mdb.db[collection].estimated_count == 0:
             print(f"Collection {collection} exists and count is 0")
         else:
