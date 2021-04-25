@@ -269,14 +269,15 @@ def match_day_results_generator(teams: Dict):
     return match_day_results
 
 
-def match_day_generator(teams_collection):
+def match_day_generator(arg):
     """
+    Arg = teams_collection
     Create a schedule in which each teams plays every other team two times,
     once as the home team and again as the away team
     """
 
     # Get the teams document out of the database
-    teams_dict = teams_collection.find_one()
+    teams_dict = arg.find_one()
     team_list = []
 
     for team_name in teams_dict:
@@ -284,16 +285,10 @@ def match_day_generator(teams_collection):
 
     # the first entry is the id, remove it from the list
     team_list = team_list[1:]
-    print("*" * 20)
-    print(f"TEAMS: {team_list}")
-    print("*" * 20)
-
-    # print(f"TEAMS: {teams}")
-    # team_list = [team for team in teams]
 
     random.shuffle(team_list)
     match_day_number = 2 * len(team_list) - 2
-    match_days = {k: [] for k in range(1, match_day_number + 1)}
+    match_days_dict = {k: [] for k in range(1, match_day_number + 1)}
 
     if len(team_list) % 2:
         team_list.append(0)
@@ -318,11 +313,11 @@ def match_day_generator(teams_collection):
 
     count = 1
     for fixture in fixtures:
-        match_days[fixture[0]] = fixture[1]
+        match_days_dict[fixture[0]] = fixture[1]
         count += 1
 
     # new dict with str conversion for keys
-    str_match_days = dict([(str(k), v) for k, v in match_days.items()])
+    str_match_days = dict([(str(k), v) for k, v in match_days_dict.items()])
 
     return str_match_days
 
@@ -355,6 +350,7 @@ def _check_season_over_condition():
 
 
 def setup_game():
+    global teams_collection
     required = {'teams': generate_teams,
                 'match_days': match_day_generator,
                 'match_day_results': match_day_results_generator,
@@ -368,26 +364,20 @@ def setup_game():
         print(collection)
         if collection == 'teams':
             if collection in current_collections:
-                teams = mdb.db['teams']
+                teams_collection = mdb.db['teams']
 
         if collection not in current_collections:
             if collection == 'teams':
                 print("Creating teams")
-                teams = required[collection]()
-                mdb.write_teams_to_database(teams)
+                teams_collection = required[collection]()
+                mdb.write_teams_to_database(teams_collection)
             elif collection == 'match_days':
                 print(f"Creating collection {collection}.")
-                res = required[collection](teams)
-
-                print(f"TYPE: {type(res)}")
-                first_key = next(iter(res))
-                print(f"FIRST KEY: {first_key}")
-                print(f"FIRST KEY TYPE: {type(first_key)}")
-
+                res = required[collection](teams_collection)
                 mdb.write_match_days_to_database(res)
             elif collection == 'match_day_results':
                 print(f"Creating collection {collection}.")
-                res = required[collection](teams)
+                res = required[collection](teams_collection)
                 mdb.write_match_day_results_to_database(res)
         elif mdb.db[collection].estimated_count == 0:
             print(f"Collection {collection} exists and count is 0")
