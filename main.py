@@ -150,10 +150,6 @@ def get_next_match():
     print("Getting next match day")
     print()
 
-    match_days_dict = match_days.find_one()
-
-    match_days_dict = dict([(k, v) for k, v in match_days_dict.items() if k != "_id"])
-
     match_days_with_matches = {
 
         k: v for k, v in match_days_dict.items() if len(v) > 0
@@ -168,7 +164,7 @@ def get_next_match():
     return match, sorted_match_days
 
 
-def _remove_match_(sorted_match_days):
+def _remove_match_(sorted_match_days, match):
     del match_days[sorted_match_days[0]][0]
 
 
@@ -209,7 +205,8 @@ def simulate_match(get_next_match: Callable) -> None:
 
         match_day_results[sorted_match_days[0]] += result
 
-    _remove_match_(sorted_match_days)
+    print(match)
+    _remove_match_(sorted_match_days, match)
 
 
 def simulate_match_day():
@@ -371,6 +368,14 @@ def _check_season_over_condition():
             sys.exit()
 
 
+def generate_match_days_dict(match_days_db) -> Dict:
+
+    md_dict = match_days_db.find_one()
+    md_dict = dict([(k, v) for k, v in match_days_dict.items() if k != "_id"])
+
+    return md_dict
+
+
 def setup_game():
     required = {'teams': generate_teams,
                 'match_days': match_day_generator,
@@ -417,8 +422,8 @@ if __name__ == "__main__":
     db_name = 'fbg'
 
     mdb = MongoDB(db_address, db_port_number, db_name)
-
     teams, match_days, match_day_results = setup_game()
+    match_days_dict = generate_match_days_dict(match_days)
 
     try:
         simulate_match(get_next_match)
