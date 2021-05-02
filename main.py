@@ -147,12 +147,24 @@ def random_game(teams):
 
 
 def get_next_match():
+    print("Getting next match day")
     print()
+
+    match_days_dict = match_days.find_one()
+
+    match_days_dict = dict([(k, v) for k, v in match_days_dict.items() if k != "_id"])
+
     match_days_with_matches = {
-        k: v for k, v in match_days.items() if len(v) > 0}
+
+        k: v for k, v in match_days_dict.items() if len(v) > 0
+
+    }
+
     sorted_match_days = sorted(
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
-    match = match_days[sorted_match_days[0]][0]
+
+    match = match_days_dict[sorted_match_days[0]][0]
+
     return match, sorted_match_days
 
 
