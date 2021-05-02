@@ -184,15 +184,15 @@ def simulate_match_day():
 
 
 def simulate_season():
-    match_days_with_matches = {
-        k: v for k, v in match_days.items() if len(v) > 0}
+    # match_days_with_matches = {
+    #    k: v for k, v in match_days_dict.items() if len(v) > 0}
 
-    sorted_match_days = sorted(
-        match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
+    # sorted_match_days = sorted(
+    #     match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
+    #
+    # # match_day = match_days_dict[sorted_match_days[0]]
 
-    match_day = match_days[sorted_match_days[0]]
-
-    for day in range(len(match_days)):
+    for day in range(len(match_days_dict)):
         simulate_match_day()
 
 
@@ -387,8 +387,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        # simulate_season()
-        simulate_match_day()
+        simulate_season()
+        # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
