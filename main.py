@@ -341,9 +341,9 @@ def match_day_generator(arg):
 
 def _check_season_over_condition():
     count = 0
-    for day in match_days:
+    for day in match_days_dict:
         try:
-            if len(match_days[day]) > 0:
+            if len(match_days_dict[day]) > 0:
                 count += 1
         except TypeError:
             count += 0
@@ -351,18 +351,16 @@ def _check_season_over_condition():
     if count == 0:
         new_game = input("Start a new season with new teams?\n")
 
-        if new_game == "y":
-            for file in game_files:
-                os.remove(file)
+        if new_game != "y":
 
-            collection_teams.delete_one({})
-            collection_match_days.delete_one({})
-            collection_match_day_results.delete_one({})
-
-            print("Game files have been deleted.")
+            print("Exiting game.")
             sys.exit()
         else:
-            print("Exiting game.")
+            teams.delete_one({})
+            match_days.delete_one({})
+            match_day_results.delete_one({})
+
+            print("Game files have been deleted.")
             sys.exit()
 
 
@@ -451,8 +449,8 @@ if __name__ == "__main__":
     print(league_table)
 
     # save_file(teams, match_days)
-    mdb.write_teams_to_database(teams)
-    mdb.write_match_days_to_database(match_days)
-    mdb.write_match_day_results_to_database(match_day_results)
+    mdb.write_teams_to_database(teams_dict)
+    mdb.write_match_days_to_database(match_days_dict)
+    mdb.write_match_day_results_to_database(match_day_results_dict)
 
     _check_season_over_condition()
