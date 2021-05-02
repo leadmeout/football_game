@@ -184,25 +184,25 @@ def simulate_match(get_next_match: Callable) -> None:
         result = [[(home_team, home_score), (away_team, away_score)]]
 
         if home_score > away_score:
-            teams[home_team]['wins'] += 1
-            teams[away_team]['losses'] += 1
+            teams_dict[home_team]['wins'] += 1
+            teams_dict[away_team]['losses'] += 1
         elif home_score < away_score:
-            teams[home_team]['losses'] += 1
-            teams[away_team]['wins'] += 1
+            teams_dict[home_team]['losses'] += 1
+            teams_dict[away_team]['wins'] += 1
         else:
-            teams[home_team]['draws'] += 1
-            teams[away_team]['draws'] += 1
+            teams_dict[home_team]['draws'] += 1
+            teams_dict[away_team]['draws'] += 1
 
-        teams[home_team]['played'] += 1
-        teams[away_team]['played'] += 1
+        teams_dict[home_team]['played'] += 1
+        teams_dict[away_team]['played'] += 1
 
-        teams[home_team]['goals_for'] += home_score
-        teams[home_team]['goals_against'] += away_score
+        teams_dict[home_team]['goals_for'] += home_score
+        teams_dict[home_team]['goals_against'] += away_score
 
-        teams[away_team]['goals_for'] += away_score
-        teams[away_team]['goals_against'] += home_score
+        teams_dict[away_team]['goals_for'] += away_score
+        teams_dict[away_team]['goals_against'] += home_score
 
-        match_day_results[sorted_match_days[0]] += result
+        match_day_results_dict[sorted_match_days[0]] += result
 
     _remove_match_(sorted_match_days)
 
