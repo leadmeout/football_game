@@ -97,27 +97,26 @@ def _check_if_bye_week(sorted_match_days, match):
         return match
 
 
-def generate_table(teams: dict):
+def generate_table(arg):
     """
     Create the league table
     """
 
-    league_table = {
-        'Team': [f"{team} {teams[team]['name']}" for team in teams],
-        'Points': [teams[team]['points'] for team in teams],
-        'GP': [teams[team]['played'] for team in teams],
-        'Wins': [teams[team]['wins'] for team in teams],
-        'Losses': [teams[team]['losses'] for team in teams],
-        'Draws': [teams[team]['draws'] for team in teams],
-        'GF': [teams[team]['goals_for'] for team in teams],
-        'GA': [teams[team]['goals_against'] for team in teams],
-        'GD': [teams[team]['goal_difference'] for team in teams],
+    table = {
+        'Team': [f"{team} {arg[team]['name']}" for team in arg],
+        'Points': [arg[team]['points'] for team in arg],
+        'GP': [arg[team]['played'] for team in arg],
+        'Wins': [arg[team]['wins'] for team in arg],
+        'Losses': [arg[team]['losses'] for team in arg],
+        'Draws': [arg[team]['draws'] for team in arg],
+        'GF': [arg[team]['goals_for'] for team in arg],
+        'GA': [arg[team]['goals_against'] for team in arg],
+        'GD': [arg[team]['goal_difference'] for team in arg],
     }
 
-    df = pd.DataFrame(league_table,
+    df = pd.DataFrame(table,
                       columns=['Team', 'Points', 'GP', 'Wins',
-                               'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[
-            i for i in range(1, len(teams) + 1)])
+                               'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[i for i in range(1, len(arg) + 1)])
     df.sort_values(by=['Points'], inplace=True, ascending=False)
 
     return df
@@ -164,8 +163,8 @@ def get_next_match():
     return match, sorted_match_days
 
 
-def _remove_match_(sorted_match_days, match):
-    del match_days[sorted_match_days[0]][0]
+def _remove_match_(sorted_match_days):
+    del match_days_dict[sorted_match_days[0]][0]
 
 
 def simulate_match(get_next_match: Callable) -> None:
@@ -205,8 +204,7 @@ def simulate_match(get_next_match: Callable) -> None:
 
         match_day_results[sorted_match_days[0]] += result
 
-    print(match)
-    _remove_match_(sorted_match_days, match)
+    _remove_match_(sorted_match_days)
 
 
 def simulate_match_day():
@@ -243,12 +241,12 @@ def point_calculator(teams) -> None:
     """
     Calculate how many points each team has based on wins and draws (losses award no points)
     """
-    for team in teams:
-        teams[team]['points'] = (
-                                        teams[team]['wins'] * 3) + teams[team]['draws']
+    for team in teams_dict:
+        teams_dict[team]['points'] = (
+                                             teams_dict[team]['wins'] * 3) + teams_dict[team]['draws']
 
-        teams[team]['goal_difference'] = teams[team]['goals_for'] - \
-                                         teams[team]['goals_against']
+        teams_dict[team]['goal_difference'] = teams_dict[team]['goals_for'] - \
+                                              teams_dict[team]['goals_against']
 
 
 def match_day_teams(match_day) -> List[str]:
@@ -268,10 +266,10 @@ def match_day_results_generator(arg):
     This dictionary will store the results of each match.
     """
 
-    teams_dict = arg.find_one()
+    team_dict = arg.find_one()
     team_list = []
 
-    for team_name in teams_dict:
+    for team_name in team_dict:
         team_list.append(team_name)
 
     # the first entry is the id, remove it from the list
@@ -368,12 +366,23 @@ def _check_season_over_condition():
             sys.exit()
 
 
-def generate_match_days_dict(match_days_db) -> Dict:
-
-    md_dict = match_days_db.find_one()
-    md_dict = dict([(k, v) for k, v in match_days_dict.items() if k != "_id"])
+def generate_match_days_dict(arg) -> Dict:
+    md_dict = arg.find_one()
+    md_dict = dict([(k, v) for k, v in md_dict.items() if k != "_id"])
 
     return md_dict
+
+
+def generate_teams_dict(arg) -> Dict:
+    t_dict = arg.find_one()
+    t_dict = dict([(k, v) for k, v in t_dict.items() if k != "_id"])
+    return t_dict
+
+
+def generate_match_day_results_dict(arg) -> Dict:
+    mdr_dict = arg.find_one()
+    mdr_dict = dict([(k, v) for k, v in mdr_dict.items() if k != "_id"])
+    return mdr_dict
 
 
 def setup_game():
@@ -423,19 +432,22 @@ if __name__ == "__main__":
 
     mdb = MongoDB(db_address, db_port_number, db_name)
     teams, match_days, match_day_results = setup_game()
+
     match_days_dict = generate_match_days_dict(match_days)
+    match_day_results_dict = generate_match_day_results_dict(match_day_results)
+    teams_dict = generate_teams_dict(teams)
 
     try:
         simulate_match(get_next_match)
         # simulate_season()
         # simulate_match_day()
     except IndexError:
-        league_table = generate_table(teams)
+        league_table = generate_table(teams_dict)
         print(league_table)
         _check_season_over_condition()
 
-    point_calculator(teams)
-    league_table = generate_table(teams)
+    point_calculator(teams_dict)
+    league_table = generate_table(teams_dict)
     print(league_table)
 
     # save_file(teams, match_days)
