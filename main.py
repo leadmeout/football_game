@@ -29,7 +29,7 @@ def generate_teams():
              'Penguins', 'Black Widows', 'Bulls', 'Magic', 'Wizards', 'Cougars',
              'Buzzards']
 
-    teams_dict = {}
+    new_teams = {}
 
     for count in range(1, 9):
         team = random.choice(cities)
@@ -38,7 +38,7 @@ def generate_teams():
         cities.pop(cities.index(team))
         nouns.pop(nouns.index(name))
 
-        teams_dict[team] = {
+        new_teams[team] = {
             'name': name,
             'squad': {},
             'played': 0,
@@ -51,20 +51,7 @@ def generate_teams():
             'goal_difference': 0,
         }
 
-    teams_dict['Toronto'] = {
-        'name': 'Blizzard',
-        'squad': {},
-        'played': 0,
-        'wins': 0,
-        'losses': 0,
-        'draws': 0,
-        'points': 0,
-        'goals_for': 0,
-        'goals_against': 0,
-        'goal_difference': 0,
-    }
-
-    return teams_dict
+    return new_teams
 
 
 def _check_if_bye_week(sorted_match_days, match):
@@ -387,8 +374,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        simulate_season()
-        # simulate_match_day()
+        # simulate_season()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
