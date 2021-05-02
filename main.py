@@ -1,25 +1,10 @@
-import json
 import names
-import os
 import pandas as pd
 import random
 import sys
-import time
 
 from typing import Callable, Dict, List
-import uuid
 from models.database import MongoDB
-
-"""
-TO DO:
-
-1. store game results in a chart (kreuztabelle)
-
-4. add index based on points
-
-5. add squad
-
-"""
 
 
 def generate_teams():
@@ -122,33 +107,7 @@ def generate_table(arg):
     return df
 
 
-def random_game(teams):
-    home_score = random.randint(0, 8)
-    away_score = random.randint(0, 8)
-
-    home_team = random.choice(list(teams))
-    away_team = random.choice(list(teams))
-
-    if home_score > away_score:
-        teams[home_team]['wins'] += 1
-        teams[away_team]['losses'] += 1
-    elif home_score < away_score:
-        teams[home_team]['losses'] += 1
-        teams[away_team]['wins'] += 1
-    else:
-        teams[home_team]['draws'] += 1
-        teams[away_team]['draws'] += 1
-
-    teams[home_team]['played'] += 1
-    teams[away_team]['played'] += 1
-
-    return teams
-
-
 def get_next_match():
-    print("Getting next match day")
-    print()
-
     match_days_with_matches = {
 
         k: v for k, v in match_days_dict.items() if len(v) > 0
@@ -167,7 +126,7 @@ def _remove_match_(sorted_match_days):
     del match_days_dict[sorted_match_days[0]][0]
 
 
-def simulate_match(get_next_match: Callable) -> None:
+def simulate_match() -> None:
     """Simulates the next match in the schedule. Skips matches which are bye games,
         indicated by a 0 in the match day."""
 
@@ -209,19 +168,19 @@ def simulate_match(get_next_match: Callable) -> None:
 
 def simulate_match_day():
     match_days_with_matches = {
-        k: v for k, v in match_days.items() if len(v) > 0}
+        k: v for k, v in match_days_dict.items() if len(v) > 0}
 
     sorted_match_days = sorted(
         match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
 
-    match_day = match_days[sorted_match_days[0]]
+    match_day = match_days_dict[sorted_match_days[0]]
 
     for match in match_day:
         if 0 in match:
             match_day.remove(match)
 
     for _ in range(len(match_day)):
-        simulate_match(get_next_match)
+        simulate_match()
 
 
 def simulate_season():
@@ -391,33 +350,24 @@ def setup_game():
 
     current_collections = mdb.db.list_collection_names()
 
-    print(current_collections)
-
     for collection in required.keys():
-        print(collection)
-
-        if collection not in current_collections:
+        if (collection not in current_collections) or (mdb.db[collection].find().count() == 0):
             if collection == 'teams':
-                print("Creating teams")
+
                 teams_collection = required[collection]()
                 mdb.write_teams_to_database(teams_collection)
 
             elif collection == 'match_days':
                 teams_collection = mdb.db['teams']
-                print(f"Creating collection {collection}.")
+
                 res = required[collection](teams_collection)
                 mdb.write_match_days_to_database(res)
 
             elif collection == 'match_day_results':
                 teams_collection = mdb.db['teams']
-                print(f"Creating collection {collection}.")
+
                 res = required[collection](teams_collection)
                 mdb.write_match_day_results_to_database(res)
-
-        elif mdb.db[collection].estimated_count == 0:
-            print(f"Collection {collection} exists and count is 0")
-        else:
-            print(f"{collection} exists.")
 
     return mdb.db['teams'], mdb.db['match_days'], mdb.db['match_day_results']
 
@@ -436,9 +386,9 @@ if __name__ == "__main__":
     teams_dict = generate_teams_dict(teams)
 
     try:
-        simulate_match(get_next_match)
+        # simulate_match()
         # simulate_season()
-        # simulate_match_day()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
