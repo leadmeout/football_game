@@ -44,7 +44,7 @@ def generate_teams():
              'Penguins', 'Black Widows', 'Bulls', 'Magic', 'Wizards', 'Cougars',
              'Buzzards']
 
-    teams = {}
+    teams_dict = {}
 
     for count in range(1, 9):
         team = random.choice(cities)
@@ -53,7 +53,7 @@ def generate_teams():
         cities.pop(cities.index(team))
         nouns.pop(nouns.index(name))
 
-        teams[team] = {
+        teams_dict[team] = {
             'name': name,
             'squad': {},
             'played': 0,
@@ -66,7 +66,7 @@ def generate_teams():
             'goal_difference': 0,
         }
 
-    teams['Toronto'] = {
+    teams_dict['Toronto'] = {
         'name': 'Blizzard',
         'squad': {},
         'played': 0,
@@ -79,7 +79,7 @@ def generate_teams():
         'goal_difference': 0,
     }
 
-    return teams
+    return teams_dict
 
 
 def _check_if_bye_week(sorted_match_days, match):
