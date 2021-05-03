@@ -3,7 +3,7 @@ import pandas as pd
 import random
 import sys
 
-from typing import Callable, Dict, List
+from typing import Dict, List
 from models.database import MongoDB
 
 
@@ -91,7 +91,9 @@ def generate_table(arg):
                                'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[i for i in range(1, len(arg) + 1)])
 
     df.sort_values(by=['Points'], inplace=True, ascending=False)
+    df.insert(0, "Position", [i for i in range(1, len(arg) + 1)])
 
+    # Hide index column
     df = df.to_string(index=False)
 
     return df
@@ -178,7 +180,7 @@ def simulate_season():
         simulate_match_day()
 
 
-def point_calculator(teams) -> None:
+def point_calculator() -> None:
     """
     Calculate how many points each team has based on wins and draws (losses award no points)
     """
@@ -369,14 +371,14 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        simulate_season()
-        # simulate_match_day()
+        # simulate_season()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
         _check_season_over_condition()
 
-    point_calculator(teams_dict)
+    point_calculator()
     league_table = generate_table(teams_dict)
     print(league_table)
 
