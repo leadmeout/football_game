@@ -19,7 +19,7 @@ def generate_teams():
               'Austin', 'Ottawa', 'San Francisco', 'Indianapolis',
               'Charlotte', 'Mississauga', 'Seattle', 'Winnipeg',
               'Denver', 'Washington', 'Boston', 'Memphis', 'Vancouver',
-              'Oklahoma', 'Brampton', 'Louisville']
+              'Oklahoma', 'Brampton', 'Louisville', 'Toronto']
 
     nouns = ['Lions', 'Leopards', 'Tigers', 'Wolves', 'Grizzlies',
              'Panthers', 'Bears', 'Thunder', 'Flash', 'Dinosaurs',
@@ -31,7 +31,7 @@ def generate_teams():
 
     new_teams = {}
 
-    for count in range(1, 9):
+    for count in range(1, 19):
         team = random.choice(cities)
         name = random.choice(nouns)
 
@@ -89,7 +89,10 @@ def generate_table(arg):
     df = pd.DataFrame(table,
                       columns=['Team', 'Points', 'GP', 'Wins',
                                'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[i for i in range(1, len(arg) + 1)])
+
     df.sort_values(by=['Points'], inplace=True, ascending=False)
+
+    df = df.to_string(index=False)
 
     return df
 
@@ -171,14 +174,6 @@ def simulate_match_day():
 
 
 def simulate_season():
-    # match_days_with_matches = {
-    #    k: v for k, v in match_days_dict.items() if len(v) > 0}
-
-    # sorted_match_days = sorted(
-    #     match_days_with_matches, key=lambda k: len(match_days_with_matches[k]))
-    #
-    # # match_day = match_days_dict[sorted_match_days[0]]
-
     for day in range(len(match_days_dict)):
         simulate_match_day()
 
@@ -374,8 +369,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        # simulate_season()
-        simulate_match_day()
+        simulate_season()
+        # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
