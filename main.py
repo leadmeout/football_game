@@ -86,11 +86,14 @@ def generate_table(arg):
         'GD': [arg[team]['goal_difference'] for team in arg],
     }
 
+    # Create DataFrame
     df = pd.DataFrame(table,
                       columns=['Team', 'Points', 'GP', 'Wins',
-                               'Losses', 'Draws', 'GF', 'GA', 'GD'], index=[i for i in range(1, len(arg) + 1)])
+                               'Losses', 'Draws', 'GF', 'GA', 'GD'])
 
+    # Sort by Points value
     df.sort_values(by=['Points'], inplace=True, ascending=False)
+    # Insert position column at the beginning of the table, starting at 0
     df.insert(0, "Position", [i for i in range(1, len(arg) + 1)])
 
     # Hide index column
@@ -335,7 +338,7 @@ def setup_game():
     current_collections = mdb.db.list_collection_names()
 
     for collection in required.keys():
-        if (collection not in current_collections) or (mdb.db[collection].find().count() == 0):
+        if (collection not in current_collections) or (len(list(mdb.db[collection].find())) == 0):
             if collection == 'teams':
 
                 teams_collection = required[collection]()
@@ -371,8 +374,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        # simulate_season()
-        simulate_match_day()
+        simulate_season()
+        # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
@@ -382,7 +385,6 @@ if __name__ == "__main__":
     league_table = generate_table(teams_dict)
     print(league_table)
 
-    # save_file(teams, match_days)
     mdb.write_teams_to_database(teams_dict)
     mdb.write_match_days_to_database(match_days_dict)
     mdb.write_match_day_results_to_database(match_day_results_dict)
