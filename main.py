@@ -54,6 +54,29 @@ def generate_teams():
     return new_teams
 
 
+def generate_squad_members():
+    """
+    Generate 22 random names for each squad.
+    Each player has their own statistics, such as goals scored, fouls, etc.
+    """
+
+    team_squad = {}
+
+    for squad_member in range(22):
+        first_name = names.get_first_name()
+        last_name = names.get_last_name()
+
+        team_squad[f"{first_name} {last_name}"] = dict([
+            ('goals_scored', 0),
+            ('assists', 0),
+            ('games_played', 0),
+            ('yellow_cards', 0),
+            ('red_cards', 0),
+        ])
+
+    return team_squad
+
+
 def _check_if_bye_week(sorted_match_days, match):
     """
     If a team if paired with a 0, it means that team has a bye week and no games on this match day.
@@ -374,8 +397,8 @@ if __name__ == "__main__":
 
     try:
         # simulate_match()
-        simulate_season()
-        # simulate_match_day()
+        # simulate_season()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
@@ -388,5 +411,10 @@ if __name__ == "__main__":
     mdb.write_teams_to_database(teams_dict)
     mdb.write_match_days_to_database(match_days_dict)
     mdb.write_match_day_results_to_database(match_day_results_dict)
+
+    res = generate_squad_members()
+
+    for k, v in res.items():
+        print(f'Player: {k} \nStats: \n{v}')
 
     _check_season_over_condition()
