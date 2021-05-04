@@ -40,7 +40,7 @@ def generate_teams():
 
         new_teams[team] = {
             'name': name,
-            'squad': {},
+            'squad': generate_squad_members(),
             'played': 0,
             'wins': 0,
             'losses': 0,
@@ -263,10 +263,10 @@ def match_day_generator(arg):
     """
 
     # Get the teams document from the database
-    teams_dict = arg.find_one()
+    team_dict = arg.find_one()
     team_list = []
 
-    for team_name in teams_dict:
+    for team_name in team_dict:
         team_list.append(team_name)
 
     # the first entry is the id, remove it from the list
@@ -274,7 +274,7 @@ def match_day_generator(arg):
 
     random.shuffle(team_list)
     match_day_number = 2 * len(team_list) - 2
-    match_days_dict = {k: [] for k in range(1, match_day_number + 1)}
+    match_days_schedule = {k: [] for k in range(1, match_day_number + 1)}
 
     if len(team_list) % 2:
         team_list.append(0)
@@ -299,11 +299,11 @@ def match_day_generator(arg):
 
     count = 1
     for fixture in fixtures:
-        match_days_dict[fixture[0]] = fixture[1]
+        match_days_schedule[fixture[0]] = fixture[1]
         count += 1
 
     # new dict with str conversion for keys
-    str_match_days = dict([(str(k), v) for k, v in match_days_dict.items()])
+    str_match_days = dict([(str(k), v) for k, v in match_days_schedule.items()])
 
     return str_match_days
 
@@ -396,9 +396,9 @@ if __name__ == "__main__":
     teams_dict = generate_teams_dict(teams)
 
     try:
-        # simulate_match()
+        simulate_match()
         # simulate_season()
-        simulate_match_day()
+        # simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
@@ -411,10 +411,5 @@ if __name__ == "__main__":
     mdb.write_teams_to_database(teams_dict)
     mdb.write_match_days_to_database(match_days_dict)
     mdb.write_match_day_results_to_database(match_day_results_dict)
-
-    res = generate_squad_members()
-
-    for k, v in res.items():
-        print(f'Player: {k} \nStats: \n{v}')
 
     _check_season_over_condition()
