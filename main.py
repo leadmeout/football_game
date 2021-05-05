@@ -67,6 +67,7 @@ def generate_squad_members():
         last_name = names.get_last_name()
 
         team_squad[f"{first_name} {last_name}"] = dict([
+            ('position', ''),
             ('goals_scored', 0),
             ('assists', 0),
             ('games_played', 0),
