@@ -62,12 +62,17 @@ def generate_squad_members():
 
     team_squad = {}
 
+    positions = ['st', 'am', 'dm' 'cm', 'rb', 'lb', 'cd', 'g']
+
     for squad_member in range(22):
         first_name = names.get_first_name()
         last_name = names.get_last_name()
 
+        # p1 = random.choice(positions.pop())
+        # p2 = random.choice(positions.pop())
+
         team_squad[f"{first_name} {last_name}"] = dict([
-            ('position', ''),
+            ('positions', []),
             ('goals_scored', 0),
             ('assists', 0),
             ('games_played', 0),
