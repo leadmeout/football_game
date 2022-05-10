@@ -3,6 +3,7 @@ import pandas as pd
 import random
 import sys
 
+from database import Database
 from typing import Dict, List
 from models.database import MongoDB
 
@@ -62,7 +63,7 @@ def generate_squad_members():
 
     team_squad = {}
 
-    positions = ['st', 'am', 'dm' 'cm', 'rb', 'lb', 'cd', 'g']
+    positions = ['st', 'am', 'dm' 'cm', 'rb', 'lb', 'cd', 'cd', 'g']
 
     for squad_member in range(22):
         first_name = names.get_first_name()
@@ -81,6 +82,10 @@ def generate_squad_members():
         ])
 
     return team_squad
+
+
+def position_selector():
+    pass
 
 
 def _check_if_bye_week(sorted_match_days, match):
@@ -367,9 +372,10 @@ def setup_game():
     current_collections = mdb.db.list_collection_names()
 
     for collection in required.keys():
-        if (collection not in current_collections) or (len(list(mdb.db[collection].find())) == 0):
-            if collection == 'teams':
 
+        if (collection not in current_collections) or (len(list(mdb.db[collection].find())) == 0):
+            print('In if statement!')
+            if collection == 'teams':
                 teams_collection = required[collection]()
                 mdb.write_teams_to_database(teams_collection)
 
@@ -384,17 +390,20 @@ def setup_game():
 
                 res = required[collection](teams_collection)
                 mdb.write_match_day_results_to_database(res)
+        # else:
+        #     print('Collection not found.')
 
     return mdb.db['teams'], mdb.db['match_days'], mdb.db['match_day_results']
 
 
 if __name__ == "__main__":
 
-    db_address = 'localhost'
-    db_port_number = 27017
-    db_name = 'fbg'
+    # db_address = 'localhost'
+    # db_port_number = 27017
+    # db_name = 'fbg'
 
-    mdb = MongoDB(db_address, db_port_number, db_name)
+    #mdb = MongoDB(db_address, db_port_number, db_name)
+    mdb = Database()
     teams, match_days, match_day_results = setup_game()
 
     match_days_dict = generate_match_days_dict(match_days)
@@ -402,9 +411,9 @@ if __name__ == "__main__":
     teams_dict = generate_teams_dict(teams)
 
     try:
-        simulate_match()
+        #simulate_match()
         # simulate_season()
-        # simulate_match_day()
+        simulate_match_day()
     except IndexError:
         league_table = generate_table(teams_dict)
         print(league_table)
